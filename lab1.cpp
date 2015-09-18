@@ -38,7 +38,7 @@
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
-#define MAX_PARTICLES 10 
+#define MAX_PARTICLES 1000 
 #define GRAVITY 0.1
 
 //X Windows variables
@@ -67,6 +67,7 @@ struct Game {
 	Shape box;
 	Particle particle[MAX_PARTICLES];
 	int n;
+	//int lastMousex, lastmousey;
 };
 
 //Function prototypes
@@ -133,7 +134,14 @@ void initXWindows(void) {
 		std::cout << "\n\tcannot connect to X server\n" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	Window root = DefaultRootWindow(dpy);
+                                                                        
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                    	Window root = DefaultRootWindow(dpy);
 	XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
 	if(vi == NULL) {
 		std::cout << "\n\tno appropriate visual found\n" << std::endl;
@@ -166,7 +174,7 @@ void init_opengl(void)
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 }
 
-//#define rnd() (float)rand() / (float)RAND_MAX
+#define rnd() (float)rand() / (float)RAND_MAX
 
 void makeParticle(Game *game, int x, int y) {
 	if (game->n >= MAX_PARTICLES)
@@ -176,8 +184,8 @@ void makeParticle(Game *game, int x, int y) {
 	Particle *p = &game->particle[game->n];
 	p->s.center.x = x;
 	p->s.center.y = y;
-	p->velocity.y = -4.0;
-	p->velocity.x =  1.0;
+	p->velocity.y = rnd()*1.0 -0.5;
+	p->velocity.x =  1.0 + rnd()*0.1;
 	game->n++;
 }
 
@@ -185,7 +193,7 @@ void check_mouse(XEvent *e, Game *game)
 {
 	static int savex = 0;
 	static int savey = 0;
-	static int n = 0;
+	//static int n = 0;
 
 	if (e->type == ButtonRelease) {
 		return;
@@ -200,9 +208,13 @@ void check_mouse(XEvent *e, Game *game)
 		}
 		if (e->xbutton.button==3) {
 			//Right button was pressed
+			int y = WINDOW_HEIGHT - e->xbutton.y;
+			for(int i=0; i<10; i++){
+			    makeParticle(game, e->xbutton.x, y);
+		}
 			return;
 		}
-	}
+	
 	//Did the mouse move?
 	if (savex != e->xbutton.x || savey != e->xbutton.y) {
 		savex = e->xbutton.x;
@@ -211,10 +223,13 @@ void check_mouse(XEvent *e, Game *game)
 		for (int i=0; i<10; i++)
 		    makeParticle(game, e->xbutton.x, y);
 		//if (++n < 10)
-		//	return;
-	}
-}
+			return;
+		//game->lastMousex = e->button.x;
+		//game->lastMousey = y:	}
+		}
+	} 
 
+}
 int check_keys(XEvent *e, Game *game)
 {
 	//Was there input from the keyboard?
@@ -236,7 +251,7 @@ void movement(Game *game)
     if (game->n <= 0)
 	    return;
 
-    for (int i=0; i<game->n; i++) {
+    for ( int i=0; i < game->n; i++) {
 	p = &game->particle[i];
 	p->s.center.x += p->velocity.x;
 	p->s.center.y += p->velocity.y;
@@ -244,11 +259,12 @@ void movement(Game *game)
 
 	//check for collision with shapes...
 	Shape *s = &game->box;
-	if (p->s.center.y < s->center.y + s->height &&
-	     	 p->s.center.y > s->center.y - s->height &&
-		 p->s.center.x >= s->center.x - s->width &&
-		 p->s.center.x <= s->center.x + s->width)
-	   	 p->velocity.y *= -1.0;
+	     if ((p->s.center.y < s->center.y + s->height) &&
+	     	 (p->s.center.x >= s->center.y - s->height &&
+		 (p->s.center.x <= s->center.x - s->width &&
+		  p->s.center.x <= s->center.x - s->width))){
+	   	  p->velocity.y *= -1.0;
+	}
 
 	//check for off-screen
 	if (p->s.center.y < 0.0 || p->s.center.y > WINDOW_HEIGHT ) {
@@ -298,7 +314,7 @@ void render(Game *game)
 		glVertex2i(c->x+w, c->y-h);
 	glEnd();
 	glPopMatrix();
-}
+	}
 
 }
 
