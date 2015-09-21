@@ -38,7 +38,7 @@
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
-#define MAX_PARTICLES 1000 
+#define MAX_PARTICLES 10000 
 #define GRAVITY 0.1
 
 //X Windows variables
@@ -133,15 +133,8 @@ void initXWindows(void) {
 	if (dpy == NULL) {
 		std::cout << "\n\tcannot connect to X server\n" << std::endl;
 		exit(EXIT_FAILURE);
-	}
-                                                                        
-                                                                                                                                                            
-                                                                                                                                                            
-                                                                                                                                                            
-                                                                                                                                                            
-                                                                                                                                                            
-                                                                                                                                                            
-                                                                                    	Window root = DefaultRootWindow(dpy);
+	}                                                                                                                                                                                         
+	Window root = DefaultRootWindow(dpy);
 	XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
 	if(vi == NULL) {
 		std::cout << "\n\tno appropriate visual found\n" << std::endl;
@@ -202,7 +195,7 @@ void check_mouse(XEvent *e, Game *game)
 		if (e->xbutton.button==1) {
 			//Left button was pressed
 			int y = WINDOW_HEIGHT - e->xbutton.y;
-			for (int i=0; i<10; i++)
+			for(int i=0; i<10; i++)
 			    makeParticle(game, e->xbutton.x, y);
 			return;
 		}
@@ -220,8 +213,9 @@ void check_mouse(XEvent *e, Game *game)
 		savex = e->xbutton.x;
 		savey = e->xbutton.y;
 		int y = WINDOW_HEIGHT - e->xbutton.y;
-		for (int i=0; i<10; i++)
+		for (int i=0; i<10; i++) {
 		    makeParticle(game, e->xbutton.x, y);
+		}
 		//if (++n < 10)
 			return;
 		//game->lastMousex = e->button.x;
@@ -259,11 +253,11 @@ void movement(Game *game)
 
 	//check for collision with shapes...
 	Shape *s = &game->box;
-	     if ((p->s.center.y < s->center.y + s->height) &&
-	     	 (p->s.center.x >= s->center.y - s->height &&
-		 (p->s.center.x <= s->center.x - s->width &&
-		  p->s.center.x <= s->center.x - s->width))){
-	   	  p->velocity.y *= -1.0;
+	if((p->s.center.y < s->center.y + s->height) ||
+	   (p->s.center.x >= s->center.x - s->width &&
+	   (p->s.center.x <= s->center.x - s->width &&
+            p->s.center.x <= s->center.x - s->width))){
+	    p->velocity.y *= -1.0;
 	}
 
 	//check for off-screen
