@@ -34,9 +34,14 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+extern "C"
+{
+#include "fonts.h"
+}
 
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
+
+#define WINDOW_WIDTH  500
+#define WINDOW_HEIGHT 360
 
 #define MAX_PARTICLES 4000
 #define GRAVITY 0.1
@@ -71,6 +76,8 @@ struct Game {
 	int lastMousex, lastMousey;
 };
 
+int xres=500, yres=300;
+
 //Function prototypes
 void initXWindows(void);
 void init_opengl(void);
@@ -80,11 +87,11 @@ int check_keys(XEvent *e, Game *game);
 void movement(Game *game);
 void render(Game *game);
 
-
 int main(void)
 {
 	int done=0;
 	srand(time(NULL));
+
 	initXWindows();
 	init_opengl();
 	//declare game object
@@ -94,16 +101,33 @@ int main(void)
 	//declare a box shape
 	game.box[0].width = 100;
 	game.box[0].height = 10;
-	game.box[0].center.x = 120 + 5*65;
-	game.box[0].center.y = 500 - 5*60;
+	game.box[0].center.x = 125;
+	game.box[0].center.y = 300;
+
 	game.box[1].width = 100;
 	game.box[1].height = 10;
-	game.box[1].center.x = 120 + 5*65 + 50;
-	game.box[1].center.y = 500 - 5*60 - 30;
-	game.circle.center.x = 600;
-	game.circle.center.y = 50;
+	game.box[1].center.x = 175;
+	game.box[1].center.y = 250;
+
+	game.box[2].width = 100;
+	game.box[2].height = 10;
+	game.box[2].center.x = 225;
+	game.box[2].center.y = 200;
+
+	game.box[3].width = 100;
+	game.box[3].height = 10;
+	game.box[3].center.x = 275;
+	game.box[3].center.y = 150;
+
+	game.box[4].width = 100;
+	game.box[4].height = 10;
+	game.box[4].center.x = 325;
+	game.box[4].center.y = 100;
+
+	//declaring the circle
+	game.circle.center.x = 475;
+	game.circle.center.y = -25;
 	game.circle.radius = 100;
-	
 
 	//start animation
 	while(!done) {
@@ -166,6 +190,9 @@ void initXWindows(void) {
 void init_opengl(void)
 {
 	//OpenGL initialization
+	glEnable(GL_TEXTURE_2D);
+	initialize_fonts();
+	
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	//Initialize matrices
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -258,7 +285,7 @@ void movement(Game *game)
 		p->velocity.y -= GRAVITY;
 
 		//check for collision with shapes...
-		for (int j=0; j<2; j++) {
+		for (int j=0; j<5; j++) {
 			Shape *s = &game->box[j];
 			if (p->s.center.y < s->center.y + s->height &&
 					p->s.center.y > s->center.y - s->height &&
@@ -298,7 +325,10 @@ void movement(Game *game)
 
 void render(Game *game)
 {
+    	Rect r;
+
 	float w, h;
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	//Draw shapes...
 
@@ -317,7 +347,7 @@ void render(Game *game)
 	}
 
 
-	glColor3ub(200,10,20);
+	glColor3ub(90,140,90);
 	glPushMatrix();
 	glBegin(GL_TRIANGLE_FAN);
 		for (int i=0; i<n; i++)
@@ -330,7 +360,7 @@ void render(Game *game)
 	//draw box
 	Shape *s;
 	glColor3ub(90,140,90);
-	for (int j=0; j<2; j++) {
+	for (int j=0; j<5; j++) {
 		s = &game->box[j];
 		glPushMatrix();
 		glTranslatef(s->center.x, s->center.y, s->center.z);
@@ -359,7 +389,35 @@ void render(Game *game)
 		glEnd();
 		glPopMatrix();
 	}
-}
 
+	glColor3f(1.0, 1.0, 1.0);
+
+	r.bot = yres - 10;
+	r.left = 100;
+	r.center = 0;
+	//unsigned int cref = 0x00000000;
+	ggprint8b(&r, 16, 0, "REQUIREMENTS");
+
+	r.bot = yres - 60;
+	r.left = 150;
+	r.center = 50;
+	ggprint8b(&r, 16, 0, "DESIGN");
+
+	r.bot = yres - 110;
+	r.left = 200;
+	r.center = 100;                 
+	ggprint8b(&r, 16, 0, "CODING");
+
+	r.bot = yres - 160;
+	r.left = 250;
+	r.center = 150;
+	ggprint8b(&r, 16, 0, "TESTING");
+
+	r.bot = yres - 210;
+	r.left = 300;
+	r.center = 200;
+	ggprint8b(&r, 16, 0, "MAINTENANCE");
+
+}
 
 
